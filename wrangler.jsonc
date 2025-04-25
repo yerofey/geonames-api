@@ -12,7 +12,7 @@
 	},
 	"triggers": {
 		"crons": [
-			"0 0 * * 0" // Run once per week at midnight
+			"0 0 * * SUN"
 		]
 	},
 	"kv_namespaces": [

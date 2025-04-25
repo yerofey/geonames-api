@@ -56,7 +56,7 @@ All API endpoints follow a consistent response format:
    ```json
    {
      "status": "ok",
-     "message": "GeoNames Scraper API is running",
+     "message": "GeoNames API is running",
      "timestamp": "2024-03-20T12:00:00.000Z"
    }
    ```
