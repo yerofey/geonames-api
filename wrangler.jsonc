@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "geonames-scraper",
+	"name": "geonames-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-04-25",
 	"observability": {
@@ -12,9 +12,26 @@
 	},
 	"triggers": {
 		"crons": [
-			"* * * * *"
+			"0 0 * * 0" // Run once per week at midnight
 		]
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "KV",
+			"id": "68647f764a414d99b5141ae9d9dc5ddf",
+			"preview_id": "geonames-data-preview"
+		}
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "geonames",
+			"database_id": "d2331b94-6367-478e-b6eb-6e175175ea4b",
+			"preview_database_id": "geonames-db-preview"
+		}
+	],
+	// "env.preview": {
+	// },
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

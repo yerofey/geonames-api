@@ -1,16 +1,24 @@
 {
-	"name": "geonames-scraper",
-	"version": "0.0.0",
-	"private": true,
+	"name": "geonames-api",
+	"version": "1.0.0",
+	"description": "A Cloudflare Worker service that provides access to GeoNames geographical data",
+	"module": "src/index.ts",
+	"type": "module",
 	"scripts": {
+		"dev": "bun run scripts/dev.ts",
 		"deploy": "wrangler deploy",
-		"dev": "wrangler dev --test-scheduled",
-		"start": "wrangler dev --test-scheduled",
-		"cf-typegen": "wrangler types"
+		"deploy:preview": "wrangler deploy --env preview",
+		"generate-types": "wrangler types",
+		"start": "bun run scripts/dev.ts",
+		"test": "bun test",
+		"type-check": "generate-types && tsc"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20250425.0",
-		"typescript": "^5.5.2",
-		"wrangler": "^4.13.1"
+		"@cloudflare/workers-types": "^4.20240208.0",
+		"@types/bun": "latest",
+		"bun-types": "latest",
+		"hono": "^4.0.0",
+		"jszip": "^3.10.1",
+		"wrangler": "^3.28.1"
 	}
 }
