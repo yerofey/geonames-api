@@ -170,6 +170,58 @@ All API endpoints follow a consistent response format:
    }
    ```
 
+7. **Timezones List**
+   ```http
+   GET /timezones
+   ```
+   Returns list of all unique timezones with statistics.
+   ```json
+   {
+     "status": "ok",
+     "total": 130,
+     "results": [
+       {
+         "timezone": "America/New_York",
+         "timezone_url": "America__New_York",
+         "city_count": 1234,
+         "min_population": 5000,
+         "max_population": 8000000,
+         "avg_population": 150000
+       }
+     ]
+   }
+   ```
+
+8. **Timezone Details**
+   ```http
+   GET /timezones/:timezone_url
+   ```
+   Get detailed information about a specific timezone. The timezone URL uses double underscores (`__`) instead of slashes for URL safety.
+   ```json
+   {
+     "status": "ok",
+     "timezone": "America/New_York",
+     "timezone_url": "America__New_York",
+     "statistics": {
+       "total_cities": 1234,
+       "total_population": 185000000,
+       "min_population": 5000,
+       "max_population": 8000000,
+       "avg_population": 150000
+     },
+     "cities": [
+       {
+         "geonameid": 5128581,
+         "name": "New York",
+         "countryCode": "US",
+         "population": 8000000,
+         "latitude": 40.71427,
+         "longitude": -74.00597
+       }
+     ]
+   }
+   ```
+
 ### Admin Endpoints (Requires Authentication)
 
 All admin endpoints require a Bearer token in the Authorization header:

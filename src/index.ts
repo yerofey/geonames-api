@@ -373,6 +373,96 @@ app.get('/import-status', async (c) => {
 	}
 });
 
+// Add utility functions for timezone conversion
+function timezoneToUrl(timezone: string): string {
+	return timezone.replace(/\//g, '__');
+}
+
+function urlToTimezone(url: string): string {
+	return url.replace(/__/g, '/');
+}
+
+// Add timezones endpoint
+app.get('/timezones', async (c) => {
+	try {
+		// Get unique timezones with their count
+		const timezones = await c.env.DB.prepare(`
+			SELECT 
+				timezone,
+				COUNT(*) as city_count,
+				MIN(population) as min_population,
+				MAX(population) as max_population,
+				ROUND(AVG(population)) as avg_population
+			FROM cities 
+			WHERE timezone IS NOT NULL 
+			GROUP BY timezone 
+			ORDER BY city_count DESC
+		`).all();
+
+		// Convert timezone names to URL-safe format
+		const results = timezones.results?.map(tz => {
+			if (typeof tz.timezone !== 'string') {
+				throw new Error('Invalid timezone format');
+			}
+			return {
+				...tz,
+				timezone_url: timezoneToUrl(tz.timezone)
+			};
+		}) || [];
+
+		return c.json(successResponse({
+			total: results.length,
+			results
+		}));
+	} catch (error) {
+		return c.json(errorResponse('Failed to fetch timezones'), 500);
+	}
+});
+
+// Add timezone details endpoint
+app.get('/timezones/:timezone_url', async (c) => {
+	try {
+		const timezoneUrl = c.req.param('timezone_url');
+		const timezone = urlToTimezone(timezoneUrl);
+		
+		// Get cities in this timezone
+		const cities = await c.env.DB.prepare(`
+			SELECT 
+				geonameid,
+				name,
+				countryCode,
+				population,
+				latitude,
+				longitude
+			FROM cities 
+			WHERE timezone = ?
+			ORDER BY population DESC
+			LIMIT 100
+		`).bind(timezone).all();
+
+		// Get timezone statistics
+		const stats = await c.env.DB.prepare(`
+			SELECT 
+				COUNT(*) as total_cities,
+				SUM(population) as total_population,
+				MIN(population) as min_population,
+				MAX(population) as max_population,
+				ROUND(AVG(population)) as avg_population
+			FROM cities 
+			WHERE timezone = ?
+		`).bind(timezone).first();
+
+		return c.json(successResponse({
+			timezone,
+			timezone_url: timezoneUrl,
+			statistics: stats,
+			cities: cities.results || []
+		}));
+	} catch (error) {
+		return c.json(errorResponse('Failed to fetch timezone details'), 500);
+	}
+});
+
 // Scheduled handler for cron job
 async function scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
 	console.log(`[${new Date().toISOString()}] Cron job started: ${event.cron}`);
